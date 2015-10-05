@@ -25,16 +25,26 @@ module clock() {
 
 led_inner = 2.7;
 led_outer = 3.84;
-inner_tolerance = 0.3;
+led_tolerance = 0.3;
 
 module inner() {
-    diameter = led_inner-inner_tolerance;
+    diameter = led_inner-led_tolerance;
     difference() {
         cylinder(h=height, d=diameter, center=true);
         cylinder(h=height, d=diameter-thickness, center=true);
     }
 }
 
+module backplane() {
+    translate([0,0,-height/2]){
+        difference() {
+            cylinder(h=thickness,d=bottom_diameter,center=true);
+            cylinder(h=thickness,d=led_outer+led_tolerance,center=true);
+        }
+    }
+}
+
 plate();
 clock();
 inner();
+backplane();
