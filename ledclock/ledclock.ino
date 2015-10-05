@@ -4,7 +4,6 @@
  */
 #include <Time.h>  
 
-#define TIME_HEADER  "T"   // Header tag for serial time sync message
 #define TIME_REQUEST  7    // ASCII bell character requests a time sync message 
 #define DEFAULT_TIME 1357041600 // Jan 1 2013
 
@@ -32,7 +31,7 @@ DCF77 DCF = DCF77(DCF_PIN,DCF_INTERRUPT, true);
 
 Adafruit_NeoPixel pixels = Adafruit_NeoPixel(NUMPIXELS, PIN, NEO_GRB + NEO_KHZ800);
 
-int delay_ms = 100;
+uint8_t delay_ms = 100;
 double deg_rad_fac = 1000/57296;
 
 void setup()  {
@@ -50,7 +49,6 @@ void setup()  {
   pixels.begin();
   
   Serial.begin(9600);
-  pinMode(13, OUTPUT);
   setSyncProvider( requestSync);  //set function to call when sync required
   
 }
@@ -77,7 +75,7 @@ void setPixels() {
    * Process minute
    */
 
-  for(int i=0;i<NUMPIXELS;i++){
+  for(uint8_t i=0;i<NUMPIXELS;i++){
     addPixelColor(i, pixels.Color(0,0xCC,0,getBrightness(i,minute())));
   }
 
@@ -94,24 +92,14 @@ uint32_t addPixelColor(int led, uint32_t color){
 /*
  * get Brightness based on sinus
  */
-int getBrightness(int for_led, int minute) {
-  int led_position = for_led*30;
-  int minute_position = minute*6;
+uint8_t getBrightness(uint8_t for_led, uint8_t minute) {
+  uint8_t led_position = for_led*360/NUMPIXELS;
+  uint8_t minute_position = minute*6;
   
   if (abs(led_position-minute_position) > 90) return 0;
   
   return cos((led_position-minute_position)*deg_rad_fac)*0xFF;
 }
-
-void printDigits(int digits){
-  // utility function for digital clock display: prints preceding colon and leading 0
-  Serial.print(":");
-  if(digits < 10)
-    Serial.print('0');
-  Serial.print(digits);
-}
-
-
 void processSyncMessage() {
   unsigned long pctime;
   setTime(DEFAULT_TIME);
