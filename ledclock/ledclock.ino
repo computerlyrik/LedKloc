@@ -6,7 +6,7 @@
 
 #define TIME_HEADER  "T"   // Header tag for serial time sync message
 #define TIME_REQUEST  7    // ASCII bell character requests a time sync message 
-
+#define DEFAULT_TIME 1357041600 // Jan 1 2013
 
 /*
  * Pixel/Ring Config
@@ -30,6 +30,8 @@ void setup()  {
   #if defined (__AVR_ATtiny85__)
     if (F_CPU == 16000000) clock_prescale_set(clock_div_1);
   #endif
+
+  setTime(DEFAULT_TIME);
   
   pixels.begin();
   
@@ -40,7 +42,7 @@ void setup()  {
 }
 
 void loop(){    
-  if (Serial.available()) {
+  if (Serial.available() > 0) {
     processSyncMessage();
   }
   if (timeStatus()!= timeNotSet) {
@@ -98,14 +100,7 @@ void printDigits(int digits){
 
 void processSyncMessage() {
   unsigned long pctime;
-  const unsigned long DEFAULT_TIME = 1357041600; // Jan 1 2013
-
-  if(Serial.find(TIME_HEADER)) {
-     pctime = Serial.parseInt();
-     if( pctime >= DEFAULT_TIME) { // check the integer is a valid time (greater than Jan 1 2013)
-       setTime(pctime); // Sync Arduino clock to the time received on the serial port
-     }
-  }
+  setTime(DEFAULT_TIME);
 }
 
 time_t requestSync()
