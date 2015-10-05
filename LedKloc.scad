@@ -1,4 +1,4 @@
-thickness = 0.3;
+thickness = 0.2;
 top_diameter = 15;
 bottom_diameter = 8;
 height = 3;
