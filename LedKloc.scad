@@ -15,30 +15,19 @@ module plate() {
 
 }
 
-module divider() {
-    cube([thickness/2,top_diameter,height], center=true);
-}
-
-module clock() {
-    intersection() {
-        outline();
-         for (i = [1:30:180]) {
-            rotate(i,0,0) {
-                divider();
-            }
-        }
-    }
-}
-
 led_inner = 2.7;
 led_outer = 3.84;
 led_tolerance = 0.3;
+diameter = led_inner-led_tolerance;
+
+module inline() {
+    cylinder(h=height, d=diameter, center=true);
+}
 
 module inner() {
     $fn=12;
-    diameter = led_inner-led_tolerance;
     difference() {
-        cylinder(h=height, d=diameter, center=true);
+        inline();
         cylinder(h=height, d=diameter-thickness, center=true);
     }
 }
@@ -50,6 +39,24 @@ module backplane() {
             cylinder(h=thickness,d=bottom_diameter,center=true);
             cylinder(h=thickness,d=led_outer+led_tolerance,center=true);
         }
+    }
+}
+
+module divider() {
+    cube([thickness/2,top_diameter,height], center=true);
+}
+
+module clock() {
+    difference() {
+        intersection() {
+            outline();
+             for (i = [1:30:180]) {
+                rotate(i,0,0) {
+                    divider();
+                }
+            }
+        };
+        inline();
     }
 }
 
