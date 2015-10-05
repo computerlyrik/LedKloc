@@ -3,22 +3,29 @@ top_diameter = 15;
 bottom_diameter = 8;
 height = 3;
 
+module outline() {
+    cylinder(h=height, d1=bottom_diameter, d2=top_diameter, center=true);
+}
 module plate() {
+    $fn=48;
     difference() {
-        cylinder(h=height, d1=bottom_diameter, d2=top_diameter, center=true);
+        outline();
         cylinder(h=height, d1=bottom_diameter-thickness, d2=top_diameter-thickness, center=true);
     }
 
 }
 
 module divider() {
-    cube([thickness,top_diameter,height], center=true);
+    cube([thickness/2,top_diameter,height], center=true);
 }
 
 module clock() {
-    for (i = [1:30:180]) {
-        rotate(i,0,0) {
-            divider();
+    intersection() {
+        outline();
+         for (i = [1:30:180]) {
+            rotate(i,0,0) {
+                divider();
+            }
         }
     }
 }
@@ -28,6 +35,7 @@ led_outer = 3.84;
 led_tolerance = 0.3;
 
 module inner() {
+    $fn=12;
     diameter = led_inner-led_tolerance;
     difference() {
         cylinder(h=height, d=diameter, center=true);
@@ -36,6 +44,7 @@ module inner() {
 }
 
 module backplane() {
+    $fn=48;
     translate([0,0,-height/2]){
         difference() {
             cylinder(h=thickness,d=bottom_diameter,center=true);
