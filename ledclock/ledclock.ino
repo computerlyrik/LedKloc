@@ -20,21 +20,10 @@
 #define PIN            11
 #define NUMPIXELS      12
 
-Adafruit_NeoPixel pixels = Adafruit_NeoPixel(NUMPIXELS, PIN);
+Adafruit_NeoPixel pixels = Adafruit_NeoPixel(NUMPIXELS, PIN, NEO_GRB + NEO_KHZ800);
 
-/*
- * Color config
- */
-
-Color cl_hour = Color(0,0,0xCC);
-Color cl_minute = Color(0,0xCC,0);
-Color cl_second = Color(0xAA,0xF, 0xF);
-
-/*
- * other config
- */
-int delay_ms = 500;
-double deg_rad = 1000 / 57296
+int delay_ms = 100;
+double deg_rad_fac = 1000/57296;
 
 void setup()  {
   //for Use with micro Attiny Board
@@ -45,7 +34,6 @@ void setup()  {
   pixels.begin();
   
   Serial.begin(9600);
-  while (!Serial) ; // Needed for Leonardo only
   pinMode(13, OUTPUT);
   setSyncProvider( requestSync);  //set function to call when sync required
   Serial.println("Waiting for sync message");
@@ -56,11 +44,8 @@ void loop(){
     processSyncMessage();
   }
   if (timeStatus()!= timeNotSet) {
-    digitalClockDisplay();  
+    setPixels();
   }
-
- setPixels();
- 
  delay(delay_ms);
 }
 
@@ -70,18 +55,14 @@ void setPixels() {
   /*
    * Process Hour
    */
-  addPixelColor(hourFormat12(), cl_hour);
+  addPixelColor(hourFormat12(), pixels.Color(0,0,0xCC));
 
   /*
    * Process minute
    */
 
-  int minute = minute();
   for(int i=0;i<NUMPIXELS;i++){
-
-    addPixelColor(i, Color(0,
-    // pixels.Color takes RGB values, from 0,0,0 up to 255,255,255
-    addPixelColor(i, Color(0,0xCC,0,getBrightness(i,minute));
+    addPixelColor(i, pixels.Color(0,0xCC,0,getBrightness(i,minute())));
   }
 
   /*
@@ -90,8 +71,8 @@ void setPixels() {
   pixels.show();
 }
 
-uint32_t addPixelColor(int led, Color c){
-  pixels.setPixelColor(led, pixels.getPixelColor(led) && c);
+uint32_t addPixelColor(int led, uint32_t color){
+  pixels.setPixelColor(led, pixels.getPixelColor(led) && color);
 }
 
 /*
@@ -99,22 +80,11 @@ uint32_t addPixelColor(int led, Color c){
  */
 int getBrightness(int for_led, int minute) {
   int led_position = for_led*30;
-  int minute_position = minute()*6;
-  return cos(led_position-minute_position)*0xFF;
-}
-
-void digitalClockDisplay(){
-  // digital clock display of the time
-  Serial.print(hour());
-  printDigits(minute());
-  printDigits(second());
-  Serial.print(" ");
-  Serial.print(day());
-  Serial.print(" ");
-  Serial.print(month());
-  Serial.print(" ");
-  Serial.print(year()); 
-  Serial.println(); 
+  int minute_position = minute*6;
+  
+  if (abs(led_position-minute_position) > 90) return 0;
+  
+  return cos((led_position-minute_position)*deg_rad_fac)*0xFF;
 }
 
 void printDigits(int digits){
@@ -143,11 +113,5 @@ time_t requestSync()
   Serial.write(TIME_REQUEST);  
   return 0; // the time will be sent later in response to serial mesg
 }
-
-
-void loop() {
-
-}
-
 
 
