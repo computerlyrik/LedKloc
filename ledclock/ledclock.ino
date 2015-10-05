@@ -8,6 +8,16 @@
 #define TIME_REQUEST  7    // ASCII bell character requests a time sync message 
 #define DEFAULT_TIME 1357041600 // Jan 1 2013
 
+
+#include <DCF77.h>
+
+#define DCF_PIN 2                // Connection pin to DCF 77 device
+#define DCF_INTERRUPT 2          // Interrupt number associated with pin
+
+time_t time;
+// Non-inverted input on pin DCF_PIN
+DCF77 DCF = DCF77(DCF_PIN,DCF_INTERRUPT, true);
+
 /*
  * Pixel/Ring Config
  */
@@ -17,7 +27,7 @@
   #include <avr/power.h>
 #endif
 
-#define PIN            11
+#define PIN            4
 #define NUMPIXELS      12
 
 Adafruit_NeoPixel pixels = Adafruit_NeoPixel(NUMPIXELS, PIN, NEO_GRB + NEO_KHZ800);
@@ -32,13 +42,17 @@ void setup()  {
   #endif
 
   setTime(DEFAULT_TIME);
+
+  DCF.Start();
+  Serial.println("Waiting for DCF77 time ... ");
+  Serial.println("It will take at least 2 minutes before a first time update.");
   
   pixels.begin();
   
   Serial.begin(9600);
   pinMode(13, OUTPUT);
   setSyncProvider( requestSync);  //set function to call when sync required
-  Serial.println("Waiting for sync message");
+  
 }
 
 void loop(){    
