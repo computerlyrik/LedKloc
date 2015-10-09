@@ -19,7 +19,7 @@
 #define PIN            11
 #define NUMPIXELS      12
 
-#define MAX_BRIGHTNESS 250
+#define MAX_BRIGHTNESS 255
 
 Adafruit_NeoPixel pixels = Adafruit_NeoPixel(NUMPIXELS, PIN, NEO_GRB + NEO_KHZ800);
 
@@ -66,10 +66,10 @@ void setPixels() {
    */
 
   for(uint8_t i=0;i<NUMPIXELS;i++){
-    uint8_t brightness = getBrightness(i,(millis()%60000)/60000.0);
+    float brightness = getBrightness(i,(millis()%60000)/60000.0);
     //if (i=5) Serial.println(brightness);
-    pixels.setPixelColor(i, pixels.Color(0, 0xCC & brightness,0));
-    //addPixelColor(i, pixels.Color(0, 0xCC & brightness,0));
+    addPixelColor(i, pixels.Color(0, 0xCC * brightness,0));
+    //addPixelColor(i, pixels.Color(0x11, 0xA, 0));
   }
 
   /*
@@ -100,7 +100,7 @@ float getBrightness(float led, float target_position) {
 
   float diff = led_position-target_position;
   float rad = diff*2*3.14;
-  float br = cos(rad);
+  float br = cos(rad*2);
   
 #ifdef __DEBUG
   Serial.print("Getting Brighntess for Led ");
@@ -119,7 +119,7 @@ float getBrightness(float led, float target_position) {
   Serial.println(rad);
 #endif
 
-  if (br > 0.3 || br > -0.3) return 0;
+  if (br > 0.1 || br > -0.1) return 0;
   
   float brightness = abs(br);
   
@@ -128,7 +128,7 @@ float getBrightness(float led, float target_position) {
   Serial.println(brightness);
 #endif
 
-  return brightness * 0xFF;
+  return brightness;
 }
 void processSyncMessage() {
   unsigned long pctime;
