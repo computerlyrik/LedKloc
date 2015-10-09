@@ -58,7 +58,7 @@ void setPixels() {
   /*
    * Process Hour
    */
-  addPixelColor(hour, pixels.Color(0xAA,0,0xCC));
+  addPixelColor(hour, pixels.Color(0,0x33,0xFF));
 
   /*
    * Process minute
