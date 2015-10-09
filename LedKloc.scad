@@ -1,5 +1,5 @@
 thickness = 2;
-top_diameter = 150;
+top_diameter = 130;
 height = 30;
 
 bottom_diameter = top_diameter - height*2;
