@@ -58,18 +58,18 @@ void setPixels() {
   /*
    * Process Hour
    */
-  //addPixelColor(hour, pixels.Color(0,0,0xCC));
-  pixels.setPixelColor(hour, pixels.Color(0x11,0x11,0xAA));
+  addPixelColor(hour, pixels.Color(0xAA,0,0xCC));
 
   /*
    * Process minute
    */
 
   for(uint8_t i=0;i<NUMPIXELS;i++){
-    float brightness = getBrightness(i,(millis()%60000)/60000.0);
+    //float brightness = getBrightness((float)i/NUMPIXELS,(minute()+second()/60)/60);
+    float brightness = getBrightness((float)i/NUMPIXELS,(millis()%60000)/60000.0);
     //if (i=5) Serial.println(brightness);
-    addPixelColor(i, pixels.Color(0, 0xCC * brightness,0));
-    //addPixelColor(i, pixels.Color(0x11, 0xA, 0));
+    addPixelColor(i, pixels.Color(0xAA * brightness, 0xCC * brightness,0));
+    addPixelColor(i, pixels.Color(8, 8, 8));
   }
 
   /*
@@ -78,48 +78,52 @@ void setPixels() {
   pixels.show();
 }
 
+/*
+ * Adds another Color to a existent LED Color based on RGB-Channels
+ */
 uint32_t addPixelColor(uint8_t led, uint32_t color){
 
-#ifdef __TRACE
-  Serial.print("Adding Color ");
-  Serial.println(color);
-  Serial.print("To Color ");
-  Serial.println(pixels.getPixelColor(led));
-  Serial.print("New Color ");
-  Serial.println(pixels.getPixelColor(led) | color);
-#endif
+  uint32_t before = pixels.getPixelColor(led);
 
-  pixels.setPixelColor(led, pixels.getPixelColor(led) | color);
+  uint16_t r = (uint8_t)(before >> 16) + (uint8_t)(color >> 16);
+  uint16_t g = (uint8_t)(before >> 8) + (uint8_t)(color >> 8);
+  uint16_t b = (uint8_t)(before) + (uint8_t)(color);
+
+  pixels.setPixelColor(led, pixels.Color(min(r,0xFF),min(g,0xFF),min(b,0xFF)));
 }
 
 /*
  * get Brightness based on sinus
  */
-float getBrightness(float led, float target_position) {
-  float led_position = led/NUMPIXELS;
-
-  float diff = led_position-target_position;
-  float rad = diff*2*3.14;
-  float br = cos(rad*2);
+float getBrightness(float led_position, float target_position) {
   
+  float diff = led_position-target_position;
+  if (diff > 0.5) diff = 1-diff;
+  if (diff < -0.5) diff = 1+diff;
 #ifdef __DEBUG
-  Serial.print("Getting Brighntess for Led ");
-  Serial.print(led);
-  Serial.print(" resulting led_position ");
+  Serial.print("Getting Brighntess for led_position ");
   Serial.println(led_position);
   
   Serial.print("Getting Brighntess for target_position ");
   Serial.print(target_position);
   Serial.print(" with diff of ");
   Serial.println(diff);
+#endif
+
+  float width = 0.12;
+  if ( -width > diff || diff > width) return 0;
+  
+  float rad = diff/width*3.14/2;
+  float br = cos(rad);
+  
+#ifdef __DEBUG
+
   
   Serial.print("Cosinus is ");
   Serial.print(br);
   Serial.print(" on rad-angle ");
   Serial.println(rad);
 #endif
-
-  if (br > 0.1 || br > -0.1) return 0;
   
   float brightness = abs(br);
   
