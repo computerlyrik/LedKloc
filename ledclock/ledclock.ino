@@ -23,10 +23,7 @@
 
 Adafruit_NeoPixel pixels = Adafruit_NeoPixel(NUMPIXELS, PIN, NEO_GRB + NEO_KHZ800);
 
-uint8_t delay_ms = 1000;
-double deg_rad_fac = 1000/57296;
-
-#define __DEBUG
+//#define __DEBUG
 
 void setup()  {
   //for Use with micro Attiny Board
@@ -50,7 +47,6 @@ void loop(){
   if (timeStatus()!= timeNotSet) {
     setPixels();
   }
- delay(delay_ms);
 }
 
 void setPixels() {
@@ -58,19 +54,22 @@ void setPixels() {
   uint8_t hour = hourFormat12();
   if (hour == 12) hour = 0;
 
-  pixels.setPixelColor(hour, pixels.Color(0xA,0xA,0xAA));
+  
   /*
    * Process Hour
    */
   //addPixelColor(hour, pixels.Color(0,0,0xCC));
+  pixels.setPixelColor(hour, pixels.Color(0x11,0x11,0xAA));
 
   /*
    * Process minute
    */
 
   for(uint8_t i=0;i<NUMPIXELS;i++){
-    uint8_t brightness = getBrightness(i,second());
-    addPixelColor(i, pixels.Color(0, 0xCC & brightness,0));
+    uint8_t brightness = getBrightness(i,(millis()%60000)/60000.0);
+    //if (i=5) Serial.println(brightness);
+    pixels.setPixelColor(i, pixels.Color(0, 0xCC & brightness,0));
+    //addPixelColor(i, pixels.Color(0, 0xCC & brightness,0));
   }
 
   /*
@@ -81,7 +80,7 @@ void setPixels() {
 
 uint32_t addPixelColor(uint8_t led, uint32_t color){
 
-#ifdef __DEBUG
+#ifdef __TRACE
   Serial.print("Adding Color ");
   Serial.println(color);
   Serial.print("To Color ");
@@ -96,30 +95,40 @@ uint32_t addPixelColor(uint8_t led, uint32_t color){
 /*
  * get Brightness based on sinus
  */
-float getBrightness(uint8_t for_led, uint8_t minute) {
-  uint16_t led_position = for_led*360/NUMPIXELS;
-  uint8_t minute_position = minute*6;
+float getBrightness(float led, float target_position) {
+  float led_position = led/NUMPIXELS;
 
-#ifdef __DEBUG
-  Serial.print("Getting Brighntess for Led on angle ");
-  Serial.println(led_position);
-#endif
-
-#ifdef __DEBUG
-  Serial.print("Getting Brighntess for Minute ");
-  Serial.println(minute);
-#endif
-
-  if (abs(led_position-minute_position) > 90) return 0;
+  float diff = led_position-target_position;
+  float rad = diff*2*3.14;
+  float br = cos(rad);
   
-  float brightness = cos((led_position-minute_position)*deg_rad_fac)*0xFF;
+#ifdef __DEBUG
+  Serial.print("Getting Brighntess for Led ");
+  Serial.print(led);
+  Serial.print(" resulting led_position ");
+  Serial.println(led_position);
+  
+  Serial.print("Getting Brighntess for target_position ");
+  Serial.print(target_position);
+  Serial.print(" with diff of ");
+  Serial.println(diff);
+  
+  Serial.print("Cosinus is ");
+  Serial.print(br);
+  Serial.print(" on rad-angle ");
+  Serial.println(rad);
+#endif
+
+  if (br > 0.3 || br > -0.3) return 0;
+  
+  float brightness = abs(br);
   
 #ifdef __DEBUG
   Serial.print("Brighntess is ");
   Serial.println(brightness);
 #endif
 
-  return brightness;
+  return brightness * 0xFF;
 }
 void processSyncMessage() {
   unsigned long pctime;
