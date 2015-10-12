@@ -2,7 +2,7 @@
 //Calculate minimum bottom diameter on purpose max 45 deg 
 bottom_diameter = top_diameter - height*2;
 
-module case(outer_diameter,inner_diameter) {
+module case(outer_diameter,inner_diameter,bottom_diameter=bottom_diameter) {
     $fn=48;
     difference() {
         /* Create case_outline and stamp out inner hole for microcontroller etc */

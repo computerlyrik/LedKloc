@@ -1,7 +1,7 @@
 
 //Globals need to be defined for the library
 thickness = 4;
-top_diameter = 230;
+top_diameter = 180;
 height = 30;
 
 include <LedKloc.scad>
@@ -13,7 +13,7 @@ led60_outer_dia = 2*78.74;
 
 
 
-case(230,30) {
+case(top_diameter,30,led60_outer_dia) {
     case_bottom() {
         led_ring(outer=led24_outer_dia,inner=led24_inner_dia,num=24);
         led_ring(outer=led60_outer_dia,inner=led60_inner_dia,num=60);

@@ -4,7 +4,6 @@
  */
 #include <Time.h>  
 
-#define TIME_REQUEST  7    // ASCII bell character requests a time sync message 
 #define DEFAULT_TIME 1357041600 // Jan 1 2013
 
 /*
@@ -37,13 +36,10 @@ void setup()  {
   pixels.setBrightness(MAX_BRIGHTNESS);
   
   Serial.begin(9600);
-  setSyncProvider( requestSync);  //set function to call when sync required
+  setSyncProvider(syncTime);  //set function to call when sync required
 }
 
 void loop(){    
-  if (Serial.available() > 0) {
-    processSyncMessage();
-  }
   if (timeStatus()!= timeNotSet) {
     setPixels();
   }
@@ -134,15 +130,14 @@ float getBrightness(float led_position, float target_position) {
 
   return brightness;
 }
-void processSyncMessage() {
+
+
+time_t syncTime()
+{
   unsigned long pctime;
   setTime(DEFAULT_TIME);
-}
-
-time_t requestSync()
-{
-  Serial.write(TIME_REQUEST);  
-  return 0; // the time will be sent later in response to serial mesg
+  //todo: sync
+  return 0;
 }
 
 
