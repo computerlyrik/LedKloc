@@ -1,3 +1,23 @@
+//wall thickness (e.g. stability, max printer res)
+thickness = 2;
+top_diameter = 130;
+height = 30;
+
+led_inner_dia = 27;
+led_outer_dia = 38.4;
+
+
+
+case(230,led_inner_dia) {
+    case_bottom() {
+        led_ring(outer=led_outer_dia,inner=led_inner_dia,num=24);
+    }
+    clock(segments=12);
+}
+
+
+
+
 // ------------- PROGRAM
 //Calculate minimum bottom diameter on purpose max 45 deg 
 bottom_diameter = top_diameter - height*2;
