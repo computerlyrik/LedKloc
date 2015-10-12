@@ -25,7 +25,7 @@ module case(outer_diameter,inner_diameter) {
 module case_bottom() { 
     translate([0,0,-height/2+thickness/2]){
         difference() {
-            cylinder(h=thickness,d=bottom_diameter,center=true);
+            cylinder(h=thickness,d=top_diameter,center=true);
             children();
         }
     }
