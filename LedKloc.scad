@@ -39,16 +39,19 @@ module led_ring(outer,inner,h=3,manufacturer_tolerance = 1) {
         }
 }
 
-module clock(segments, outer_cut=top_diameter,inner_cut=0) {
+module clock(segments, outer_cut=top_diameter,inner_cut=0, shift=0) {
     module divider() {
-        difference() {
-            cube([thickness/2,outer_cut,height], center=true);
-            cube([thickness/2,inner_cut,height], center=true);
+        glow = thickness+1.5;
+        translate([0,0,glow/2-1.5]) {
+            difference() {
+                cube([thickness/4,outer_cut,height-glow], center=true);
+                cube([thickness/4,inner_cut,height-glow], center=true);
+            }
         }
     }
     angle = 360/segments;
     for (i = [0:angle:179]) {
-        rotate(i,0,0) {
+        rotate(i+shift,0,0) {
             divider();
         }
     }
